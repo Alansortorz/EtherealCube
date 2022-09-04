@@ -1,0 +1,197 @@
+C51 COMPILER V9.60.0.0   TRANSFORM_3D                                                      02/03/2020 19:17:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TRANSFORM_3D
+OBJECT MODULE PLACED IN ..\Output\transform_3D.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\transform_3D.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User)
+                    - DEBUG OBJECTEXTEND PRINT(..\Listing\transform_3D.lst) OBJECT(..\Output\transform_3D.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: transform_3D.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.基于矩阵计算的3D图形变换算法
+   5          *       2.纯算法
+   6          *******************************************************************************/
+   7          #include<math.h>
+   8          #include"public.h"
+   9          
+  10          
+  11          
+  12          typedef struct 
+  13          {
+  14              int x; int y;
+  15          }_2D;
+  16          typedef struct 
+  17          {
+  18              float x; float y; float z;
+  19          }_3D;
+  20          
+  21          
+  22          
+  23          /******************************************************************************/
+  24          /* 矩阵计算                                                                   */
+  25          /******************************************************************************/
+  26          
+  27          /***************************************
+  28          函数: MAT_Copy
+  29          功能: 矩阵拷贝
+  30          说明: source(源矩阵),dest(目标矩阵)
+  31          ***************************************/
+  32          void MAT_Copy( float source[4][4], float dest[4][4] )
+  33          {
+  34   1          uchar i,j;
+  35   1          for(i=0; i<4; i++)
+  36   1              for(j=0; j<4; j++)
+  37   1                  dest[i][j]=source[i][j];
+  38   1      }
+  39          
+  40          /***************************************
+  41          函数: MAT_Mult
+  42          功能: 矩阵相乘
+  43          说明: mat1(矩阵1),mat2(矩阵2),dest(相乘后的新矩阵)
+  44          ***************************************/
+  45          void MAT_Mult( float mat1[4][4], float mat2[4][4], float dest[4][4] )
+  46          {
+  47   1          uchar i,j;
+  48   1          for(i=0; i<4; i++)
+  49   1              for(j=0; j<4; j++)
+  50   1                  dest[i][j]=mat1[i][0]*mat2[0][j]+mat1[i][1]*mat2[1][j]+mat1[i][2]*mat2[2][j]+mat1[i][3]*mat2[3
+             -][j];
+  51   1      }
+  52          
+  53          /***************************************
+C51 COMPILER V9.60.0.0   TRANSFORM_3D                                                      02/03/2020 19:17:35 PAGE 2   
+
+  54          函数: VEC_MultMatrix
+  55          功能: 矢量与矩阵相乘
+  56          输入: Source(源矢量(坐标)),mat(变换矩阵)
+  57          输出: 变换后的新矢量(坐标)
+  58          说明: 计算过程和矩阵相乘一致
+  59          ***************************************/
+  60          _3D VEC_MultMatrix( _3D Source, float mat[4][4] )
+  61          {
+  62   1          _3D xdata Dest;
+  63   1          Dest.x = Source.x*mat[0][0] + Source.y*mat[1][0] + Source.z*mat[2][0] + mat[3][0];
+  64   1          Dest.y = Source.x*mat[0][1] + Source.y*mat[1][1] + Source.z*mat[2][1] + mat[3][1];
+  65   1          Dest.z = Source.x*mat[0][2] + Source.y*mat[1][2] + Source.z*mat[2][2] + mat[3][2];
+  66   1          return Dest;
+  67   1      }
+  68          
+  69          
+  70          
+  71          /******************************************************************************/
+  72          /* 变换矩阵                                                                   */
+  73          /******************************************************************************/
+  74          
+  75          /***************************************
+  76          函数: Identity_3D
+  77          功能: 单位矩阵
+  78          说明: 把一个数组构造成单位矩阵
+  79          ***************************************/
+  80          void Identity_3D( float mat[4][4] )
+  81          {
+  82   1          mat[0][0]=1.0; mat[0][1]=0.0; mat[0][2]=0.0; mat[0][3]=0.0;
+  83   1          mat[1][0]=0.0; mat[1][1]=1.0; mat[1][2]=0.0; mat[1][3]=0.0;
+  84   1          mat[2][0]=0.0; mat[2][1]=0.0; mat[2][2]=1.0; mat[2][3]=0.0;
+  85   1          mat[3][0]=0.0; mat[3][1]=0.0; mat[3][2]=0.0; mat[3][3]=1.0;
+  86   1      }
+  87          
+  88          /***************************************
+  89          函数: Translate_3D
+  90          功能: 平移变换矩阵
+  91          说明: 1.tx,ty,tz(平移参数)
+  92                2.矩阵mat根据tx,ty,tz进行平移变换
+  93          ***************************************/
+  94          void Translate_3D( float mat[4][4], int tx, int ty, int tz )
+  95          {
+  96   1          float xdata lmat[4][4];
+  97   1          float xdata tmat[4][4];
+  98   1          //---------------------
+  99   1          tmat[0][0]=1;  tmat[0][1]=0;  tmat[0][2]=0;  tmat[0][3]=0;
+ 100   1          tmat[1][0]=0;  tmat[1][1]=1;  tmat[1][2]=0;  tmat[1][3]=0;
+ 101   1          tmat[2][0]=0;  tmat[2][1]=0;  tmat[2][2]=1;  tmat[2][3]=0;
+ 102   1          tmat[3][0]=tx; tmat[3][1]=ty; tmat[3][2]=tz; tmat[3][3]=1;
+ 103   1          //---------------------
+ 104   1          MAT_Mult(mat,tmat,lmat);
+ 105   1          MAT_Copy(lmat,mat);
+ 106   1      }
+ 107          
+ 108          /***************************************
+ 109          函数: Scale_3D
+ 110          功能: 比例变换矩阵
+ 111          说明: 1.相对于原点的比例变换
+ 112                2.sx,sy,sz(x轴/y轴/z轴上的缩放量)
+ 113                3.矩阵mat根据sx,sy,sz进行比例变换
+ 114          ***************************************/
+ 115          void Scale_3D( float mat[4][4], float sx, float sy, float sz )
+C51 COMPILER V9.60.0.0   TRANSFORM_3D                                                      02/03/2020 19:17:35 PAGE 3   
+
+ 116          {
+ 117   1          float xdata lmat[4][4];
+ 118   1          float xdata smat[4][4];
+ 119   1          //---------------------
+ 120   1          smat[0][0]=sx; smat[0][1]=0;  smat[0][2]=0;  smat[0][3]=0;
+ 121   1          smat[1][0]=0;  smat[1][1]=sy; smat[1][2]=0;  smat[1][3]=0;
+ 122   1          smat[2][0]=0;  smat[2][1]=0;  smat[2][2]=sz; smat[2][3]=0;
+ 123   1          smat[3][0]=0;  smat[3][1]=0;  smat[3][2]=0;  smat[3][3]=1;
+ 124   1          //---------------------
+ 125   1          MAT_Mult(mat,smat,lmat);
+ 126   1          MAT_Copy(lmat,mat);
+ 127   1      }
+ 128          
+ 129          /***************************************
+ 130          函数: Rotate_3D
+ 131          功能: 旋转变换矩阵
+ 132          说明: 1.绕z轴转az度角
+ 133                2.az(旋转的角度量,赋正值为顺时针转)
+ 134                3.矩阵mat根据a度角进行旋转变换
+ 135          ***************************************/
+ 136          void Rotate_3D( float mat[4][4], float ax, float ay, float az )
+ 137          {
+ 138   1          float xdata mat1[4][4];
+ 139   1          float xdata mat2[4][4];
+ 140   1          float xdata xmat[4][4];
+ 141   1          float xdata ymat[4][4];
+ 142   1          float xdata zmat[4][4];
+ 143   1          //---------------------
+ 144   1          ax = (3.1415926*ax)/180.0; //角度量转换为弧度量
+ 145   1          ay = (3.1415926*ay)/180.0; //角度量转换为弧度量
+ 146   1          az = (3.1415926*az)/180.0; //角度量转换为弧度量
+ 147   1          //---------------------
+ 148   1          xmat[0][0]=1;        xmat[0][1]=0;        xmat[0][2]=0;        xmat[0][3]=0;
+ 149   1          xmat[1][0]=0;        xmat[1][1]=cos(ax);  xmat[1][2]=sin(ax);  xmat[1][3]=0;
+ 150   1          xmat[2][0]=0;        xmat[2][1]=-sin(ax); xmat[2][2]=cos(ax);  xmat[2][3]=0;
+ 151   1          xmat[3][0]=0;        xmat[3][1]=0;        xmat[3][2]=0;        xmat[3][3]=1;
+ 152   1          
+ 153   1          ymat[0][0]=cos(ay);  ymat[0][1]=0;        ymat[0][2]=-sin(ay); ymat[0][3]=0;
+ 154   1          ymat[1][0]=0;        ymat[1][1]=1;        ymat[1][2]=0;        ymat[1][3]=0;
+ 155   1          ymat[2][0]=sin(ay);  ymat[2][1]=0;        ymat[2][2]=cos(ay);  ymat[2][3]=0;
+ 156   1          ymat[3][0]=0;        ymat[3][1]=0;        ymat[3][2]=0;        ymat[3][3]=1;
+ 157   1          
+ 158   1          zmat[0][0]=cos(az);  zmat[0][1]=sin(az);  zmat[0][2]=0;        zmat[0][3]=0;
+ 159   1          zmat[1][0]=-sin(az); zmat[1][1]=cos(az);  zmat[1][2]=0;        zmat[1][3]=0;
+ 160   1          zmat[2][0]=0;        zmat[2][1]=0;        zmat[2][2]=1;        zmat[2][3]=0;
+ 161   1          zmat[3][0]=0;        zmat[3][1]=0;        zmat[3][2]=0;        zmat[3][3]=1;
+ 162   1          //---------------------
+ 163   1          MAT_Mult(mat,xmat,mat1);
+ 164   1          MAT_Mult(mat1,ymat,mat2);
+ 165   1          MAT_Mult(mat2,zmat,mat);
+ 166   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2202    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----     588
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      73
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.60.0.0   TRANSFORM_3D                                                      02/03/2020 19:17:35 PAGE 4   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

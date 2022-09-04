@@ -1,0 +1,86 @@
+C51 COMPILER V9.60.0.0   ROTATION_FONT3D                                                   02/03/2020 19:17:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE ROTATION_FONT3D
+OBJECT MODULE PLACED IN ..\Output\rotation_font3D.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\rotation_font3D.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Us
+                    -er) DEBUG OBJECTEXTEND PRINT(..\Listing\rotation_font3D.lst) OBJECT(..\Output\rotation_font3D.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: rotation_font3D.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 在三维空间中旋转一个字形或图片
+   5          *******************************************************************************/
+   6          #include"public.h"
+   7          #include"font.h"
+   8          #include"dis_graphics.h"
+   9          #include"transform_3D.h"
+  10          #include"projection.h"
+  11          
+  12          
+  13          
+  14          /***************************************
+  15          函数: RotatePic32x32
+  16          功能: 在三维空间中旋转一个32x32的字符或图形
+  17          说明: 1.根据设定的方式变换图片每个点的坐标,并显示
+  18                2.旋转角度(0~360)
+  19                3.az取正值为顺时针旋转
+  20          ***************************************/
+  21          void RotatePic32x32( uchar *dp, float ax, float ay,float az )
+  22          {
+  23   1          uchar idata i,j,k,temp;
+  24   1          //---------------------
+  25   1          float xdata gmat[4][4];
+  26   1          _3D xdata Point0;
+  27   1          _3D xdata Point1;
+  28   1          _2D xdata PointDis;
+  29   1          //---------------------
+  30   1          Identity_3D(gmat);
+  31   1          Translate_3D(gmat,-16,-16,0); //32X32图片
+  32   1          Rotate_3D(gmat,ax,ay,az);
+  33   1          Translate_3D(gmat,0,0,32);
+  34   1          //---------------------
+  35   1          XOrigin = 64;
+  36   1          YOrigin = 32;
+  37   1          //--------------------- 变换32X32图片中,每个显示点的初始坐标
+  38   1          for(i=0;i<4;i++) 
+  39   1          {
+  40   2              for(k=0;k<8;k++)
+  41   2              {
+  42   3                  temp=_crol_(0x01,k);
+  43   3                  for(j=0;j<32;j++)
+  44   3                  {
+  45   4                      if( *(dp+j) & temp )//DisDot(Y+(i*8)+k,X+j);
+  46   4                      {
+  47   5                          Point0.x = j;
+  48   5                          Point0.y = (i*8)+k;
+  49   5                          Point0.z = -24;
+  50   5                          //---------------------
+  51   5                          Point1 = VEC_MultMatrix(Point0,gmat); //坐标变换
+  52   5                          PointDis = PerProject(Point1);        //透视投影
+  53   5                          //---------------------
+  54   5                          DisDot(PointDis.y,PointDis.x);
+C51 COMPILER V9.60.0.0   ROTATION_FONT3D                                                   02/03/2020 19:17:35 PAGE 2   
+
+  55   5                      }
+  56   4                  }
+  57   3              }
+  58   2              dp+=32;
+  59   2          }
+  60   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    398    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      92
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      15
+   IDATA SIZE       =   ----       4
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

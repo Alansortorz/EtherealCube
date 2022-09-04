@@ -1,0 +1,114 @@
+C51 COMPILER V8.08   DRAW_CIRCLE_2                                                         11/24/2014 21:41:04 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE DRAW_CIRCLE_2
+OBJECT MODULE PLACED IN ..\Output\draw_circle_2.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE ..\User\draw_circle_2.c BROWSE DEBUG OBJECTEXTEND PRINT(..\Li
+                    -sting\draw_circle_2.lst) OBJECT(..\Output\draw_circle_2.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: draw_circle_2.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.Bresenham画圆算法
+   5          *       2.操作基于画点函数DisDot
+   6          *******************************************************************************/
+   7          #include"public.h"
+   8          #include"dis_graphics.h"
+   9          
+  10          
+  11          
+  12          
+  13          
+  14          /***************************************
+  15          函数: DrawCircle_2
+  16          功能: 在指定位置画一个指定大小的圆
+  17          说明: 1.Bresenham画圆算法
+  18                2.x0/y0为圆心坐标,r为圆的半径,fill(为是否填充)
+  19          ***************************************/
+  20          void draw_circle_8( uint xc, uint yc, uint x, uint y ) 
+  21          {
+  22   1          DisDot( yc + y , xc + x );
+  23   1          DisDot( yc + y , xc - x );
+  24   1          DisDot( yc - y , xc + x );
+  25   1          DisDot( yc - y , xc - x );
+  26   1          DisDot( yc + x , xc + y );
+  27   1          DisDot( yc + x , xc - y );
+  28   1          DisDot( yc - x , xc + y );
+  29   1          DisDot( yc - x , xc - y );
+  30   1      }
+  31          //Bresenham's circle algorithm
+  32          void DrawCircle_2( uint xc, uint yc, uint r, bit fill )
+  33          {
+  34   1          // (xc, yc) 为圆心，r 为半径    
+  35   1          // fill 为是否填充         
+  36   1          // 如果圆在图片可见区域外，直接退出    
+  37   1          
+  38   1          int x , y;
+  39   1          int d;
+  40   1          int yi;
+  41   1          //--------------------------
+  42   1          x = 0;
+  43   1          y = r;
+  44   1          d = 3 - 2 * r;
+  45   1          //--------------------------
+  46   1          if(r > 63 || r == 0)return; //圆半径过大或者没半径则返回
+  47   1          //if(xc + r < 0 || xc - r >= 240 || yc + r < 0 || yc - r >= 320)return;  
+  48   1          //--------------------------
+  49   1          if(fill)
+  50   1          {    
+  51   2              // 如果填充（画实心圆）    
+  52   2              while(x <= y)   
+  53   2              {    
+  54   3                  for(yi = x; yi <= y; yi ++)    
+C51 COMPILER V8.08   DRAW_CIRCLE_2                                                         11/24/2014 21:41:04 PAGE 2   
+
+  55   3                  {  
+  56   4                      draw_circle_8(xc, yc, x, yi);
+  57   4                  }  
+  58   3                  if(d < 0)   
+  59   3                  {    
+  60   4                      d = d + 4 * x + 6;    
+  61   4                  }   
+  62   3                  else   
+  63   3                  {    
+  64   4                      d = d + 4 * (x - y);    
+  65   4                      y --;    
+  66   4                  }    
+  67   3                  x++;    
+  68   3              }
+  69   2          }
+  70   1          else   
+  71   1          {    
+  72   2              // 如果不填充（画空心圆）    
+  73   2              while (x <= y)   
+  74   2              {    
+  75   3                  draw_circle_8(xc, yc, x, y);
+  76   3                  if(d < 0)   
+  77   3                  {    
+  78   4                      d = d + 4 * x + 6;    
+  79   4                  }   
+  80   3                  else   
+  81   3                  {    
+  82   4                      d = d + 4 * (x - y);    
+  83   4                      y --;    
+  84   4                  }    
+  85   3                  x ++;    
+  86   3              }
+  87   2          }
+  88   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    464    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      20
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

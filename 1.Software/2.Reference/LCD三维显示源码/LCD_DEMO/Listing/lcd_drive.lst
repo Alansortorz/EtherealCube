@@ -1,0 +1,189 @@
+C51 COMPILER V9.60.0.0   LCD_DRIVE                                                         02/03/2020 19:17:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE LCD_DRIVE
+OBJECT MODULE PLACED IN ..\Output\lcd_drive.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\lcd_drive.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User) DE
+                    -BUG OBJECTEXTEND PRINT(..\Listing\lcd_drive.lst) OBJECT(..\Output\lcd_drive.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: lcd_drive.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.LCD硬件配置及数据写入
+   5          *       2.驱动芯片:ST7565R
+   6          *       3.I/O口模拟“串行数据写入”
+   7          *       4.有1K字节的显示buffer，只负责把buffer数据全部写入LCD，刷新屏幕
+   8          *******************************************************************************/
+   9          #include "STC15F2K60S2.h"
+  10          #include "public.h"
+  11          #include "delay.h"
+  12          
+  13          
+  14          
+  15          
+  16          
+  17          /******************************************************************************/
+  18          /* 变量定义                                                                   */
+  19          /******************************************************************************/
+  20          
+  21          /**********接口定义**********/
+  22          sbit SCL = P0^0;
+  23          sbit SDA = P0^1;
+  24          sbit RST = P0^3;
+  25          sbit CS  = P0^2; //Chip Select,(0:choose)
+  26          sbit RS  = P0^4; //Register Select,(0:CMD,1:DAT)
+  27          
+  28          /**********缓存定义**********/
+  29          uchar xdata DisBuf[8][128];  //1024字节的显示缓存
+  30          
+  31          
+  32          
+  33          
+  34          
+  35          
+  36          
+  37          /******************************************************************************/
+  38          /* 数据写入                                                                   */
+  39          /******************************************************************************/
+  40          
+  41          /***************************************
+  42          函数: LcdWriteByte
+  43          功能: 向lcd驱动芯片写入一个"字节"
+  44          说明: "字节"可以是CMD或DAT
+  45          ***************************************/
+  46          void LcdWriteByte(bit cd,uchar byte)
+  47          {
+  48   1          uchar data i;
+  49   1          RS = cd;
+  50   1          for(i=0;i<8;i++)
+  51   1          {
+  52   2              SCL=0;
+  53   2              if(byte&0x80)SDA=1;
+  54   2              else         SDA=0;
+C51 COMPILER V9.60.0.0   LCD_DRIVE                                                         02/03/2020 19:17:35 PAGE 2   
+
+  55   2              SCL=1;
+  56   2              byte<<=1;
+  57   2          }
+  58   1      }
+  59          
+  60          /***************************************
+  61          宏名: LcdWriteCmd, 写入"指令"
+  62          宏名: LcdWriteDat, 写入"数据"
+  63          说明: 带参数的宏定义
+  64          ***************************************/
+  65          #define DAT 1
+  66          #define CMD 0
+  67          #define LcdWriteCmd(byte)  LcdWriteByte(CMD,byte)
+  68          #define LcdWriteDat(byte)  LcdWriteByte(DAT,byte)
+  69          
+  70          
+  71          
+  72          
+  73          
+  74          
+  75          
+  76          
+  77          
+  78          /******************************************************************************/
+  79          /* 模块操作                                                                   */
+  80          /******************************************************************************/
+  81          
+  82          /***************************************
+  83          函数: LcdInit
+  84          功能: LCD上电初始化
+  85          ***************************************/
+  86          void LcdInit(void)
+  87          {
+  88   1          CS=0;
+  89   1          RST=0;
+  90   1          DelayMs(4);
+  91   1          RST=1;
+  92   1          DelayMs(6);
+  93   1          //----------------
+  94   1          LcdWriteCmd(0x2c);
+  95   1          DelayMs(1);
+  96   1          LcdWriteCmd(0x2e);
+  97   1          DelayMs(1);
+  98   1          LcdWriteCmd(0x2f);
+  99   1          DelayMs(1);
+ 100   1          LcdWriteCmd(0x23);  /*粗调对比度，可设置范围 0x20～0x27*/ 
+ 101   1          LcdWriteCmd(0x81);  /*微调对比度*/ 
+ 102   1          LcdWriteCmd(0x28);  /*0x1a,微调对比度的值，可设置范围 0x00～0x3f*/ 
+ 103   1          LcdWriteCmd(0xa2);  /*1/9 偏压比（bias）*/ 
+ 104   1          LcdWriteCmd(0xc8);  /*行扫描顺序：从上到下*/ 
+ 105   1          LcdWriteCmd(0xa0);  /*列扫描顺序：从左到右*/ 
+ 106   1          LcdWriteCmd(0x60);  /*起始行：第一行开始*/ 
+ 107   1          LcdWriteCmd(0xaf);  /*开显示*/ 
+ 108   1          CS=1;
+ 109   1      }
+ 110          
+ 111          /***************************************
+ 112          函数: LcdWriteAddr
+ 113          功能: 写入地址
+ 114          说明: page代表Y方向,column代表X方向
+ 115          ***************************************/
+ 116          void LcdWriteAddr(uchar page,uchar column)
+C51 COMPILER V9.60.0.0   LCD_DRIVE                                                         02/03/2020 19:17:35 PAGE 3   
+
+ 117          {
+ 118   1          column+=1;
+ 119   1          LcdWriteCmd(0xb0+page);        //页地址
+ 120   1          LcdWriteCmd(column&0x0f);      //列地址低4位
+ 121   1          LcdWriteCmd((column>>4)+0x10); //列地址高4位
+ 122   1      }
+ 123          
+ 124          /***************************************
+ 125          函数: ClearScreen
+ 126          功能: 全屏清屏
+ 127          说明: 向LCD的所有RAM地址写入0x00
+ 128          ***************************************/
+ 129          void ClearScreen(void) 
+ 130          { 
+ 131   1          uchar i,j;
+ 132   1          CS=0;
+ 133   1          for(i=0;i<9;i++)
+ 134   1          { 
+ 135   2              LcdWriteAddr(i,0); 
+ 136   2              for(j=0;j<132;j++) LcdWriteDat(0x00);
+ 137   2          }
+ 138   1          CS=1;
+ 139   1      }
+ 140          
+ 141          /***************************************
+ 142          函数: RefreshScreen
+ 143          功能: 更新屏幕"显示数据"
+ 144          说明: 把缓存DisBuf数据写入LCD
+ 145          ***************************************/
+ 146          void RefreshScreen(void)
+ 147          {
+ 148   1          uchar i,j;
+ 149   1          //------------
+ 150   1          P0M1 &= 0xc0;
+ 151   1          P0M0 &= 0xc0; //准双向口
+ 152   1          //------------
+ 153   1          CS=0;
+ 154   1          for(i=0;i<8;i++)
+ 155   1          { 
+ 156   2              LcdWriteAddr(i,0); 
+ 157   2              for(j=0;j<128;j++) LcdWriteDat(DisBuf[i][j]);
+ 158   2          }
+ 159   1          CS=1;
+ 160   1      }
+ 161          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    328    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   1024    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

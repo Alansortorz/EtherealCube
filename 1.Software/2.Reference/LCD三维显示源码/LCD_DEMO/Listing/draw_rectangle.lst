@@ -1,0 +1,53 @@
+C51 COMPILER V8.08   DRAW_RECTANGLE                                                        11/24/2014 21:41:04 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE DRAW_RECTANGLE
+OBJECT MODULE PLACED IN ..\Output\draw_rectangle.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE ..\User\draw_rectangle.c BROWSE DEBUG OBJECTEXTEND PRINT(..\L
+                    -isting\draw_rectangle.lst) OBJECT(..\Output\draw_rectangle.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: draw_rectangle.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.画一个矩形
+   5          *       2.是对画线函数做了一个封装
+   6          *******************************************************************************/
+   7          #include"public.h"
+   8          #include"draw_line.h"
+   9          
+  10          
+  11          
+  12          /***************************************
+  13          函数: DrawRectangle
+  14          功能: 画矩形函数
+  15          说明: 1.对"画直线函数"做了个封装
+  16                2.x1,y1（对角线起点坐标）x2,y2（对角线终点坐标）
+  17          ***************************************/
+  18          void DrawRectangle(uint x1, uint y1, uint x2, uint y2 )
+  19          {
+  20   1          if(y1> 63)y1= 63;
+  21   1          if(x1>127)x1=127;
+  22   1          if(y2> 63)y2= 63;
+  23   1          if(x2>127)x2=127;
+  24   1          //-------------------
+  25   1          DrawLine(x1,y1,x2,y1);
+  26   1          DrawLine(x1,y1,x1,y2);
+  27   1          DrawLine(x1,y2,x2,y2);
+  28   1          DrawLine(x2,y1,x2,y2);
+  29   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    164    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

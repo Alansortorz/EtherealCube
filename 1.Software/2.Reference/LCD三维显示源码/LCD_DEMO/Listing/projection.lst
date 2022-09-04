@@ -1,0 +1,79 @@
+C51 COMPILER V9.60.0.0   PROJECTION                                                        02/03/2020 19:17:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE PROJECTION
+OBJECT MODULE PLACED IN ..\Output\projection.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\projection.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User) D
+                    -EBUG OBJECTEXTEND PRINT(..\Listing\projection.lst) OBJECT(..\Output\projection.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: projection.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.3D转2D的投影算法
+   5          *       2.纯算法
+   6          *******************************************************************************/
+   7          typedef struct 
+   8          {
+   9              int x; int y;
+  10          }_2D;
+  11          typedef struct 
+  12          {
+  13              float x; float y; float z;
+  14          }_3D;
+  15          
+  16          
+  17          
+  18          /***************************************
+  19          函数: OrtProject
+  20          功能: 正射投影(Orthographic projection)
+  21          ***************************************/
+  22          _2D OrtProject(_3D xdata Space)
+  23          {
+  24   1          _2D xdata Screen;
+  25   1          //---------------
+  26   1          Screen.x = (int)Space.x;
+  27   1          Screen.y = (int)Space.y;
+  28   1          //---------------
+  29   1          return Screen;
+  30   1      }
+  31          
+  32          
+  33          
+  34          //基于透视投影的标准模型
+  35          #define FOCAL_DISTANCE 128 //视点到视平面的距离
+  36          int xdata XOrigin;
+  37          int xdata YOrigin;
+  38          /***************************************
+  39          函数: PerProject
+  40          功能: 透视投影(Perspective projection)
+  41          说明: 1.又称为中心投影法
+  42                2.XOrigin,YOrigin为投影后的图形中心的屏幕坐标
+  43          ***************************************/
+  44          _2D PerProject(_3D xdata Space)
+  45          {
+  46   1          _2D xdata Screen;
+  47   1          //-------------------
+  48   1          if(Space.z==0)Space.z=1; //被除数不能为零
+  49   1          Screen.x = (int)( FOCAL_DISTANCE * Space.x / (Space.z + FOCAL_DISTANCE) ) + XOrigin;
+  50   1          Screen.y = (int)( FOCAL_DISTANCE * Space.y / (Space.z + FOCAL_DISTANCE) ) + YOrigin;
+  51   1          //-------------------
+  52   1          return Screen;
+  53   1      }
+
+C51 COMPILER V9.60.0.0   PROJECTION                                                        02/03/2020 19:17:35 PAGE 2   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    228    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      4       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      24
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

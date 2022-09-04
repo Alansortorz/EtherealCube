@@ -1,0 +1,14 @@
+"..\Output\main.obj",
+"..\Output\rtc.obj",
+"..\Output\delay.obj",
+"..\Output\lcd_drive.obj",
+"..\Output\dis_general.obj",
+"..\Output\dis_graphics.obj",
+"..\Output\draw_line.obj",
+"..\Output\transform_3D.obj",
+"..\Output\projection.obj",
+"..\Output\font.obj",
+"..\Output\rotation_font3D.obj",
+"..\Output\rotation_cube.obj" 
+TO "..\Output\demo" 
+PRINT("..\Listing\demo.m51") RAMSIZE(256) 

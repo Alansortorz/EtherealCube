@@ -1,0 +1,161 @@
+C51 COMPILER V9.60.0.0   DRAW_LINE                                                         02/03/2020 19:17:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE DRAW_LINE
+OBJECT MODULE PLACED IN ..\Output\draw_line.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\draw_line.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User) DE
+                    -BUG OBJECTEXTEND PRINT(..\Listing\draw_line.lst) OBJECT(..\Output\draw_line.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: draw_line.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.Bresenham画线算法
+   5          *       2.操作基于画点函数DisDot
+   6          *******************************************************************************/
+   7          #include"public.h"
+   8          #include"dis_graphics.h"
+   9          
+  10          
+  11          
+  12          /***************************************
+  13          函数: BresenhamLine
+  14          功能: 绘制X1/Y1到X2/Y2的两点连线
+  15          说明: Bresenham画线算法
+  16          ***************************************/
+  17          void BresenhamLine(int x1,int y1,int x2,int y2)
+  18          {
+  19   1          int dx,dy,e;
+  20   1          dx=x2-x1;
+  21   1          dy=y2-y1;
+  22   1          //----------
+  23   1          if(dx>=0)
+  24   1          {
+  25   2              if(dy >= 0) // dy>=0
+  26   2              {
+  27   3                  if(dx>=dy) // 1/8 octant
+  28   3                  {
+  29   4                      e=dy-dx/2;
+  30   4                      while(x1<=x2)
+  31   4                      {
+  32   5                          DisDot(y1,x1);
+  33   5                          if(e>0){y1+=1;e-=dx;}
+  34   5                          x1+=1;
+  35   5                          e+=dy;
+  36   5                      }
+  37   4                  }
+  38   3                  else        // 2/8 octant
+  39   3                  {
+  40   4                      e=dx-dy/2;
+  41   4                      while(y1<=y2)
+  42   4                      {
+  43   5                          DisDot(y1,x1);
+  44   5                          if(e>0){x1+=1;e-=dy;}
+  45   5                          y1+=1;
+  46   5                          e+=dx;
+  47   5                      }
+  48   4                  }
+  49   3              }
+  50   2              else           // dy<0
+  51   2              {
+  52   3                  dy=-dy;    // dy=abs(dy)
+  53   3                  if(dx>=dy) // 8/8 octant
+  54   3                  {
+C51 COMPILER V9.60.0.0   DRAW_LINE                                                         02/03/2020 19:17:35 PAGE 2   
+
+  55   4                      e=dy-dx/2;
+  56   4                      while(x1<=x2)
+  57   4                      {
+  58   5                          DisDot(y1,x1);
+  59   5                          if(e>0){y1-=1;e-=dx;}
+  60   5                          x1+=1;
+  61   5                          e+=dy;
+  62   5                      }
+  63   4                  }
+  64   3                  else        // 7/8 octant
+  65   3                  {
+  66   4                      e=dx-dy/2;
+  67   4                      while(y1>=y2)
+  68   4                      {
+  69   5                          DisDot(y1,x1);
+  70   5                          if(e>0){x1+=1;e-=dy;}
+  71   5                          y1-=1;
+  72   5                          e+=dx;
+  73   5                      }
+  74   4                  }
+  75   3              }
+  76   2          }
+  77   1          else //dx<0
+  78   1          {
+  79   2              dx=-dx;        //dx=abs(dx)
+  80   2              if(dy >= 0)    // dy>=0
+  81   2              {
+  82   3                  if(dx>=dy) // 4/8 octant
+  83   3                  {
+  84   4                      e=dy-dx/2;
+  85   4                      while(x1>=x2)
+  86   4                      {
+  87   5                          DisDot(y1,x1);
+  88   5                          if(e>0){y1+=1;e-=dx;}
+  89   5                          x1-=1;
+  90   5                          e+=dy;
+  91   5                      }
+  92   4                  }
+  93   3                  else        // 3/8 octant
+  94   3                  {
+  95   4                      e=dx-dy/2;
+  96   4                      while(y1<=y2)
+  97   4                      {
+  98   5                          DisDot(y1,x1);
+  99   5                          if(e>0){x1-=1;e-=dy;}
+ 100   5                          y1+=1;
+ 101   5                          e+=dx;
+ 102   5                      }
+ 103   4                  }
+ 104   3              }
+ 105   2              else           // dy<0
+ 106   2              {
+ 107   3                  dy=-dy;    // dy=abs(dy)
+ 108   3                  if(dx>=dy) // 5/8 octant
+ 109   3                  {
+ 110   4                      e=dy-dx/2;
+ 111   4                      while(x1>=x2)
+ 112   4                      {
+ 113   5                          DisDot(y1,x1);
+ 114   5                          if(e>0){y1-=1;e-=dx;}
+ 115   5                          x1-=1;
+ 116   5                          e+=dy;
+C51 COMPILER V9.60.0.0   DRAW_LINE                                                         02/03/2020 19:17:35 PAGE 3   
+
+ 117   5                      }
+ 118   4                  }
+ 119   3                  else        // 6/8 octant
+ 120   3                  {
+ 121   4                      e=dx-dy/2;
+ 122   4                      while(y1>=y2)
+ 123   4                      {
+ 124   5                          DisDot(y1,x1);
+ 125   5                          if(e>0){x1-=1;e-=dy;}
+ 126   5                          y1-=1;
+ 127   5                          e+=dx;
+ 128   5                      }
+ 129   4                  }
+ 130   3              }
+ 131   2          }
+ 132   1      }
+ 133          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1002    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      14
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

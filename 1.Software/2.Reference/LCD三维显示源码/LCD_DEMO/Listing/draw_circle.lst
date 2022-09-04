@@ -1,0 +1,75 @@
+C51 COMPILER V8.08   DRAW_CIRCLE                                                           11/24/2014 21:41:04 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE DRAW_CIRCLE
+OBJECT MODULE PLACED IN ..\Output\draw_circle.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE ..\User\draw_circle.c BROWSE DEBUG OBJECTEXTEND PRINT(..\List
+                    -ing\draw_circle.lst) OBJECT(..\Output\draw_circle.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: draw_circle.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.Bresenham画圆算法
+   5          *       2.操作基于画点函数DisDot
+   6          *******************************************************************************/
+   7          #include"public.h"
+   8          #include"dis_graphics.h"
+   9          
+  10          
+  11          
+  12          /***************************************
+  13          函数: DrawCircle
+  14          功能: x0/y0为圆心坐标,r为圆的半径,画圆
+  15          说明: Bresenham画圆算法
+  16          ***************************************/
+  17          void DrawCircle(uchar x0 , uchar y0 , uchar r)
+  18          {
+  19   1          char a , b;
+  20   1          char di;
+  21   1          if(r > 63 || r == 0)return; //圆半径过大或者没半径则返回
+  22   1          //-------------------------
+  23   1          a = 0;
+  24   1          b = r;
+  25   1          di = 3 - 2 * r;//判断下个点位置的标志
+  26   1          while(a <= b)
+  27   1          {
+  28   2              DisDot( y0 - a , x0 - b ); //3
+  29   2              DisDot( y0 - a , x0 + b ); //0
+  30   2              DisDot( y0 + b , x0 - a ); //1
+  31   2              DisDot( y0 - a , x0 - b ); //7
+  32   2              DisDot( y0 - b , x0 - a ); //2
+  33   2              DisDot( y0 + a , x0 + b ); //4
+  34   2              DisDot( y0 - b , x0 + a ); //5
+  35   2              DisDot( y0 + b , x0 + a ); //6
+  36   2              DisDot( y0 + a , x0 - b );
+  37   2              //a++;
+  38   2              //***使用bresenham算法画圆********/
+  39   2              if(di < 0)
+  40   2              di += 4 * a + 6;
+  41   2              else
+  42   2              {
+  43   3                  di += 10 + 4 * (a - b);
+  44   3                  b--;
+  45   3              }
+  46   2              a++;
+  47   2              //DisDot( y0 + b , x0 + a );
+  48   2          }
+  49   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    223    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V8.08   DRAW_CIRCLE                                                           11/24/2014 21:41:04 PAGE 2   
+
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

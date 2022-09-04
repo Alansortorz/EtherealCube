@@ -1,0 +1,226 @@
+C51 COMPILER V9.60.0.0   DIS_GRAPHICS                                                      02/03/2020 19:17:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE DIS_GRAPHICS
+OBJECT MODULE PLACED IN ..\Output\dis_graphics.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\dis_graphics.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User)
+                    - DEBUG OBJECTEXTEND PRINT(..\Listing\dis_graphics.lst) OBJECT(..\Output\dis_graphics.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: dis_graphics.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.建立绘图显示的基础:DisDot
+   5          *       2.基本的绘图显示操作
+   6          *       3.所有操作都基于显示缓存DisBuf
+   7          *******************************************************************************/
+   8          #include"public.h"
+   9          extern uchar xdata DisBuf[8][128];  //1024字节的显示缓存
+  10          
+  11          
+  12          
+  13          
+  14          
+  15          /***************************************
+  16          函数: DisDot
+  17          功能: 在屏幕任意位置显示一个点
+  18          说明: 1.显示点位置坐标(Y:0~63,X:0~127)
+  19                2.超出坐标范围,不显示
+  20          ***************************************/
+  21          void DisDot(uchar Y,uchar X)
+  22          {
+  23   1          uchar idata page;
+  24   1          uchar idata dot;
+  25   1          //-------------------
+  26   1          //Y&=0x3f;
+  27   1          //X&=0x7f; //限制输入坐标范围
+  28   1          //-------------------
+  29   1          if(Y>63||X>127)return; //坐标超出范围,则退出
+  30   1          //-------------------
+  31   1          page=Y/8;
+  32   1          dot =Y%8;
+  33   1          dot =_crol_(0x01,dot);
+  34   1          //-------------------
+  35   1          DisBuf[page][X] |= dot;
+  36   1      }
+  37          
+  38          
+  39          
+  40          
+  41          
+  42          /***************************************
+  43          函数: DisDotMatrix
+  44          功能: 以X/Y为起点坐标,显示一个边长为NxM的点方阵
+  45          说明: 1.起点位置坐标(Y:0~63,X:0~127)
+  46                2.超出坐标范围,不显示
+  47                3.起点坐标位于点方阵的左上角
+  48                4.M和N代表边长,当M或N=0时,则不显示
+  49                5.建立在DisDot概念上
+  50          ***************************************//*
+  51          void DisDotMatrix(uchar Y,uchar X,uchar M,uchar N)
+  52          {
+  53              uchar idata i,j;
+  54              uchar idata row;
+C51 COMPILER V9.60.0.0   DIS_GRAPHICS                                                      02/03/2020 19:17:35 PAGE 2   
+
+  55              uchar idata column;
+  56              uchar idata page;
+  57              uchar idata dot;
+  58              //-------------------
+  59              if(M==0||N==0)return;
+  60              //-------------------
+  61              //Y&=0x3f;
+  62              //X&=0x7f; //限制输入坐标范围
+  63              //-------------------
+  64              if(Y>63||X>127)return; //坐标超出范围,则退出
+  65              //-------------------
+  66              for(i=0;i<M;i++)
+  67              {
+  68                  if( (Y+i)>63 )break; //坐标超出范围,则退出
+  69                  row=(Y+i);
+  70                  //row&=0x3f; //限制输入坐标范围
+  71                  //--------
+  72                  page=row/8;
+  73                  dot =row%8;
+  74                  dot =_crol_(0x01,dot);
+  75                  //-------------------
+  76                  for(j=0;j<N;j++)
+  77                  {
+  78                      if( (X+j)>127 )break; //坐标超出范围,则退出
+  79                      column=(X+j);
+  80                      //column&=0x7f; //限制输入坐标范围
+  81                      //-----------
+  82                      DisBuf[page][column] |= dot;
+  83                  }
+  84              }
+  85          }
+  86          
+  87          /***************************************
+  88          函数: DisRecArea
+  89          功能: 显示X1/Y1到X2/Y2为对角线的矩形面
+  90          说明: 1.获得矩形左上角的X/Y,和矩形的边长M/N
+  91                2.坐标范围(Y:0~63,X:0~127)
+  92                3.超出部分,不会显示
+  93                4.建立在DisDotMatrix概念上
+  94                5.允许边长为零
+  95          ***************************************//*
+  96          void DisRecArea(uchar Y1,uchar X1,uchar Y2,uchar X2)
+  97          {
+  98              uchar idata Y,X;
+  99              uchar idata M,N;
+ 100              uchar idata i,j;
+ 101              uchar idata row;
+ 102              uchar idata column;
+ 103              uchar idata page;
+ 104              uchar idata dot;
+ 105              //-------------------
+ 106              //Y1&=0x3f; Y2&=0x3f;
+ 107              //X1&=0x7f; X2&=0x7f;
+ 108              if(Y1> 63)Y1= 63;
+ 109              if(X1>127)X1=127;
+ 110              if(Y2> 63)Y2= 63;
+ 111              if(X2>127)X2=127;
+ 112              //-------------------
+ 113              if(Y1<Y2){ Y=Y1; M=Y2-Y1; }
+ 114              else     { Y=Y2; M=Y1-Y2; }
+ 115              if(X1<X2){ X=X1; N=X2-X1; }
+ 116              else     { X=X2; N=X1-X2; }
+C51 COMPILER V9.60.0.0   DIS_GRAPHICS                                                      02/03/2020 19:17:35 PAGE 3   
+
+ 117              //-------------------
+ 118              for(i=0;i<=M;i++)
+ 119              {
+ 120                  row=(Y+i);
+ 121                  //row&=0x3f;
+ 122                  //--------
+ 123                  page=row/8;
+ 124                  dot =row%8;
+ 125                  dot =_crol_(0x01,dot);
+ 126                  //-------------------
+ 127                  for(j=0;j<=N;j++)
+ 128                  {
+ 129                      column=(X+j);
+ 130                      //column&=0x7f;
+ 131                      //-----------
+ 132                      DisBuf[page][column] |= dot;
+ 133                  }
+ 134              }
+ 135          }
+ 136          
+ 137          /***************************************
+ 138          函数: DisRecBox
+ 139          功能: 显示X1/Y1到X2/Y2为对角线的矩形框
+ 140          说明: 1.获得矩形左上角的X/Y,和矩形的边长M/N
+ 141                2.建立在DisRecArea概念上
+ 142                3.用法同DisRecArea
+ 143          ***************************************//*
+ 144          void DisRecBox(uchar Y1,uchar X1,uchar Y2,uchar X2)
+ 145          {
+ 146              uchar idata Y,X;
+ 147              uchar idata M,N;
+ 148              uchar idata i,j;
+ 149              uchar idata row;
+ 150              uchar idata column;
+ 151              uchar idata page;
+ 152              uchar idata dot;
+ 153              //-------------------
+ 154              //Y1&=0x3f; Y2&=0x3f;
+ 155              //X1&=0x7f; X2&=0x7f;
+ 156              if(Y1> 63)Y1= 63;
+ 157              if(X1>127)X1=127;
+ 158              if(Y2> 63)Y2= 63;
+ 159              if(X2>127)X2=127;
+ 160              //-------------------
+ 161              if(Y1<Y2){ Y=Y1; M=Y2-Y1; }
+ 162              else     { Y=Y2; M=Y1-Y2; }
+ 163              if(X1<X2){ X=X1; N=X2-X1; }
+ 164              else     { X=X2; N=X1-X2; }
+ 165              //-------------------
+ 166              for(i=0;i<=M;i++)
+ 167              {
+ 168                  row=(Y+i);
+ 169                  //row&=0x3f;
+ 170                  //--------
+ 171                  page=row/8;
+ 172                  dot =row%8;
+ 173                  dot =_crol_(0x01,dot);
+ 174                  //-------------------
+ 175                  for(j=0;j<=N;j++)
+ 176                  {
+ 177                      //---------------------------- 掏空
+ 178                      if(i==0||i==M)
+C51 COMPILER V9.60.0.0   DIS_GRAPHICS                                                      02/03/2020 19:17:35 PAGE 4   
+
+ 179                      {
+ 180                          column=(X+j);
+ 181                          //column&=0x7f;
+ 182                          //-----------
+ 183                          DisBuf[page][column] |= dot;
+ 184                      }
+ 185                      else if(j==0||j==N)
+ 186                      {
+ 187                          column=(X+j);
+ 188                          //column&=0x7f;
+ 189                          //-----------
+ 190                          DisBuf[page][column] |= dot;
+ 191                      }
+ 192                      //----------------------------
+ 193                  }
+ 194              }
+ 195          }
+ 196          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     77    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----       2
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

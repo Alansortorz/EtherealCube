@@ -1,0 +1,66 @@
+C51 COMPILER V8.08   ROTATION_FONT                                                         11/25/2014 09:13:47 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE ROTATION_FONT
+OBJECT MODULE PLACED IN ..\Output\rotation_font.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE ..\User\rotation_font.c BROWSE DEBUG OBJECTEXTEND PRINT(..\Li
+                    -sting\rotation_font.lst) OBJECT(..\Output\rotation_font.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: rotation_font.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.旋转一个字形或图片
+   5          *******************************************************************************/
+   6          #include"public.h"
+   7          #include"font.h"
+   8          #include"transform_point.h"
+   9          
+  10          
+  11          
+  12          /***************************************
+  13          函数: RotatePic32x32
+  14          功能: 旋转一个32x32的字符或图形
+  15          说明: 1.图形中心坐标(Y:0~63,X:0~127)
+  16                2.输入参数超出屏幕范围,则退出
+  17                3.a为旋转角度(0~360)
+  18                4.a取正值为顺时针旋转
+  19          ***************************************/
+  20          void RotatePic32x32(uchar X,uchar Y,uchar *dp,float a)
+  21          {
+  22   1          uchar idata i,j,k,temp;
+  23   1          //---------------------
+  24   1          if(X>127+16||Y>63+16)return;
+  25   1          CenterX = X;
+  26   1          CenterY = Y;
+  27   1          AngleY = a;
+  28   1          //---------------------
+  29   1          for(i=0;i<4;i++) 
+  30   1          {
+  31   2              for(k=0;k<8;k++)
+  32   2              {
+  33   3                  temp=_crol_(0x01,k);
+  34   3                  for(j=0;j<32;j++)
+  35   3                  {
+  36   4                      if( *(dp+j) & temp )//DisDot(Y+(i*8)+k,X+j);
+  37   4                      TransformPoint3D(j,(i*8)+k);
+  38   4                  }
+  39   3              }
+  40   2              dp+=32;
+  41   2          }
+  42   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    176    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       9
+   IDATA SIZE       =   ----       4
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

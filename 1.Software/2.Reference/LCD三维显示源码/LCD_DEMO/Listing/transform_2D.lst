@@ -1,0 +1,169 @@
+C51 COMPILER V8.08   TRANSFORM_2D                                                          11/10/2014 22:41:50 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE TRANSFORM_2D
+OBJECT MODULE PLACED IN ..\Output\transform_2D.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE ..\User\transform_2D.c BROWSE DEBUG OBJECTEXTEND PRINT(..\Lis
+                    -ting\transform_2D.lst) OBJECT(..\Output\transform_2D.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: transform_2D.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.基于矩阵计算的2D图形变换算法
+   5          *       2.纯算法
+   6          *******************************************************************************/
+   7          #include<math.h>
+   8          #include"public.h"
+   9          
+  10          
+  11          
+  12          typedef struct 
+  13          {
+  14              int x; int y;
+  15          }_2D;
+  16          
+  17          
+  18          
+  19          /******************************************************************************/
+  20          /* 矩阵计算                                                                   */
+  21          /******************************************************************************/
+  22          
+  23          /***************************************
+  24          函数: MAT_Copy
+  25          功能: 矩阵拷贝
+  26          说明: source(源矩阵),dest(目标矩阵)
+  27          ***************************************/
+  28          void MAT_Copy( float source[3][3], float dest[3][3] )
+  29          {
+  30   1          uchar i,j;
+  31   1          for(i=0; i<3; i++)
+  32   1              for(j=0; j<3; j++)
+  33   1                  dest[i][j]=source[i][j];
+  34   1      }
+  35          
+  36          /***************************************
+  37          函数: MAT_Mult
+  38          功能: 矩阵相乘
+  39          说明: mat1(矩阵1),mat2(矩阵2),dest(相乘后的新矩阵)
+  40          ***************************************/
+  41          void MAT_Mult( float mat1[3][3], float mat2[3][3], float dest[3][3] )
+  42          {
+  43   1          uchar i,j;
+  44   1          for(i=0; i<3; i++)
+  45   1              for(j=0; j<3; j++)
+  46   1                  dest[i][j]=mat1[i][0]*mat2[0][j]+mat1[i][1]*mat2[1][j]+mat1[i][2]*mat2[2][j];
+  47   1      }
+  48          
+  49          /***************************************
+  50          函数: VEC_MultMatrix
+  51          功能: 矢量与矩阵相乘
+  52          输入: Source(源矢量(坐标)),mat(变换矩阵)
+  53          输出: 变换后的新矢量(坐标)
+  54          说明: 计算过程和矩阵相乘一致
+C51 COMPILER V8.08   TRANSFORM_2D                                                          11/10/2014 22:41:50 PAGE 2   
+
+  55          ***************************************/
+  56          _2D VEC_MultMatrix( _2D Source, float mat[3][3] )
+  57          {
+  58   1          _2D xdata Dest;
+  59   1          Dest.x = Source.x*mat[0][0] + Source.y*mat[1][0] + mat[2][0];
+  60   1          Dest.y = Source.x*mat[0][1] + Source.y*mat[1][1] + mat[2][1];
+  61   1          return Dest;
+  62   1      }
+  63          
+  64          
+  65          
+  66          /******************************************************************************/
+  67          /* 变换矩阵                                                                   */
+  68          /******************************************************************************/
+  69          
+  70          /***************************************
+  71          函数: Identity_2D
+  72          功能: 单位矩阵
+  73          说明: 把一个数组赋值成单位矩阵
+  74          ***************************************/
+  75          void Identity_2D( float mat[3][3] )
+  76          {
+  77   1          mat[0][0]=1.0; mat[0][1]=0.0; mat[0][2]=0.0;
+  78   1          mat[1][0]=0.0; mat[1][1]=1.0; mat[1][2]=0.0;
+  79   1          mat[2][0]=0.0; mat[2][1]=0.0; mat[2][2]=1.0;
+  80   1      }
+  81          
+  82          /***************************************
+  83          函数: Translate_2D
+  84          功能: 平移变换矩阵
+  85          说明: 1.tx,ty(平移参数)
+  86                2.矩阵mat根据tx,ty进行平移变换
+  87          ***************************************/
+  88          void Translate_2D( float mat[3][3], int tx, int ty )
+  89          {
+  90   1          float xdata lmat[3][3];
+  91   1          float xdata tmat[3][3];
+  92   1          //---------------------
+  93   1          tmat[0][0]=1;  tmat[0][1]=0;  tmat[0][2]=0;
+  94   1          tmat[1][0]=0;  tmat[1][1]=1;  tmat[1][2]=0;
+  95   1          tmat[2][0]=tx; tmat[2][1]=ty; tmat[2][2]=1;
+  96   1          //---------------------
+  97   1          MAT_Mult(mat,tmat,lmat);
+  98   1          MAT_Copy(lmat,mat);
+  99   1      }
+ 100          
+ 101          /***************************************
+ 102          函数: Scale_2D
+ 103          功能: 比例变换矩阵
+ 104          说明: 1.相对于原点的比例变换
+ 105                2.sx,sy(x轴和y轴上的缩放量)
+ 106                3.矩阵mat根据sx,sy进行比例变换
+ 107          ***************************************/
+ 108          void Scale_2D( float mat[3][3], float sx, float sy )
+ 109          {
+ 110   1          float xdata lmat[3][3];
+ 111   1          float xdata smat[3][3];
+ 112   1          //---------------------
+ 113   1          smat[0][0]=sx; smat[0][1]=0;  smat[0][2]=0;
+ 114   1          smat[1][0]=0;  smat[1][1]=sy; smat[1][2]=0;
+ 115   1          smat[2][0]=0;  smat[2][1]=0;  smat[2][2]=1;
+ 116   1          //---------------------
+C51 COMPILER V8.08   TRANSFORM_2D                                                          11/10/2014 22:41:50 PAGE 3   
+
+ 117   1          MAT_Mult(mat,smat,lmat);
+ 118   1          MAT_Copy(lmat,mat);
+ 119   1      }
+ 120          
+ 121          /***************************************
+ 122          函数: Rotate_2D
+ 123          功能: 旋转变换矩阵
+ 124          说明: 1.绕原点转a度角
+ 125                2.a(旋转的角度量,赋正值为顺时针转)
+ 126                3.矩阵mat根据a度角进行旋转变换
+ 127          ***************************************/
+ 128          void Rotate_2D( float mat[3][3], float a )
+ 129          {
+ 130   1          float xdata lmat[3][3];
+ 131   1          float xdata rmat[3][3];
+ 132   1          //---------------------
+ 133   1          a = (3.1415926*a)/180.0; //角度量转换为弧度量
+ 134   1          //---------------------
+ 135   1          rmat[0][0]=  cos(a);  rmat[0][1]= sin(a);  rmat[0][2]=0;
+ 136   1          rmat[1][0]= -sin(a);  rmat[1][1]= cos(a);  rmat[1][2]=0;
+ 137   1          rmat[2][0]=  0;       rmat[2][1]= 0;       rmat[2][2]=1;
+ 138   1          //---------------------
+ 139   1          MAT_Mult(mat,rmat,lmat);
+ 140   1          MAT_Copy(lmat,mat);
+ 141   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1156    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----     220
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      51
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

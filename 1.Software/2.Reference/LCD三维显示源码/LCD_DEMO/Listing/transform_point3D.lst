@@ -1,0 +1,75 @@
+C51 COMPILER V8.08   TRANSFORM_POINT3D                                                     11/26/2014 13:07:05 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE TRANSFORM_POINT3D
+OBJECT MODULE PLACED IN ..\Output\transform_point3D.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE ..\User\transform_point3D.c BROWSE DEBUG OBJECTEXTEND PRINT(.
+                    -.\Listing\transform_point3D.lst) OBJECT(..\Output\transform_point3D.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: transform_point3D.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.根据设定方式变换三维空间中的任意一个点
+   5          *       2.基于3D图形变换算法和透视投影算法
+   6          *******************************************************************************/
+   7          #include"public.h"
+   8          #include"dis_graphics.h"
+   9          #include"transform_3D.h"
+  10          #include"projection.h"
+  11          
+  12          
+  13          
+  14          float xdata AngleX;
+  15          float xdata AngleY;
+  16          float xdata AngleZ;
+  17          
+  18          
+  19          
+  20          /***************************************
+  21          函数: TransformPoint3D
+  22          功能: 变换一个三维空间中的点的坐标
+  23          说明: 1.fx,fy为点的初始坐标(因为是图片,z轴默认为0)
+  24                2.根据设定的方式变换该点的坐标,变换后显示该点
+  25          ***************************************/
+  26          void TransformPoint3D( int fx, int fy )
+  27          {
+  28   1          float xdata gmat[4][4];
+  29   1          _3D xdata Point0;
+  30   1          _3D xdata Point1;
+  31   1          _2D xdata PointDis;
+  32   1          //---------------------
+  33   1          Point0.x = fx;
+  34   1          Point0.y = fy;
+  35   1          Point0.z = 0;
+  36   1          //---------------------
+  37   1          Identity_3D(gmat);
+  38   1          Translate_3D(gmat,-16,-16,-24); //32X32图片
+  39   1          Rotate_3D(gmat,AngleX,AngleY,AngleZ);
+  40   1          Translate_3D(gmat,0,0,32);
+  41   1          //---------------------
+  42   1          XOrigin = 64;
+  43   1          YOrigin = 32;
+  44   1          //---------------------
+  45   1          Point1 = VEC_MultMatrix(Point0,gmat); //坐标变换
+  46   1          PointDis = PerProject(Point1);        //透视投影
+  47   1          //---------------------
+  48   1          DisDot(PointDis.y,PointDis.x);
+  49   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    272    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V8.08   TRANSFORM_POINT3D                                                     11/26/2014 13:07:05 PAGE 2   
+
+   XDATA SIZE       =     12      92
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

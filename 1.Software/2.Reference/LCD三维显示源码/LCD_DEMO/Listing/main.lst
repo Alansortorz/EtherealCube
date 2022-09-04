@@ -1,0 +1,124 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              02/03/2020 19:17:34 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN ..\Output\main.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User) DEBUG O
+                    -BJECTEXTEND PRINT(..\Listing\main.lst) OBJECT(..\Output\main.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 工程: 基于STC单片机“12864液晶显示旋转的立方体和图片(优化算法)”实例
+   3          * 编译: Keil uVersion 3
+   4          * 创建: 2014-11-26 15:57:14
+   5          * 更新: NULL
+   6          * 版本: 1.0
+   7          *******************************************************************************/
+   8          /*******************************************************************************
+   9          * 文档: main.c
+  10          * 作者: Wu LianWei
+  11          * 描述: 1.三维图形变换操作
+  12          *       2.transform_3D.c文档中包含“变换算法”
+  13          *       3.projection.c文档中包含“投影算法”
+  14          *       4.rotation_cube.c文档应用“变换矩阵算法”和“投影算法”实现旋转立方体
+  15          *       5.rotation_font3D.c文档实现三维空间中旋转图片(优化算法)
+  16          *       6.三维图形变换基于“变换矩阵算法”和“投影算法”来构建新坐标
+  17          *       7.显示效果是 立方体绕Y轴旋转,图片也随之旋转。
+  18          *******************************************************************************/
+  19          #include "STC15F2K60S2.h"
+  20          #include "public.h"
+  21          #include "rtc.h"
+  22          #include "lcd_drive.h"
+  23          #include "dis_general.h"
+  24          #include "rotation_cube.h"
+  25          #include "rotation_font3D.h"
+  26          #include "font.h"
+  27          
+  28          
+  29          
+  30          /******************************************************************************/
+  31          /* 程序变量定义                                                               */
+  32          /******************************************************************************/
+  33          volatile bit flash;    //闪烁标志
+  34          float idata turn;          //转向角度
+  35          uchar idata pic;
+  36          sbit BG = P0^5; //低电平有效
+  37          
+  38          
+  39          
+  40          /******************************************************************************/
+  41          /* MAIN主程序                                                                 */
+  42          /******************************************************************************/
+  43          void main(void)
+  44          {
+  45   1          WDT_CONTR = 0x05; //关闭看门狗
+  46   1          //--------------------------------
+  47   1          RTC_cfg();          //配置实时时钟(启动定时器0)
+  48   1          LcdInit();          //LCD12864初始化
+  49   1          ClearScreen();      //清空屏幕
+  50   1          //------------
+  51   1          turn=0;                     //转向角度置0
+  52   1          pic=0;
+  53   1          
+  54   1          while(1)
+C51 COMPILER V9.60.0.0   MAIN                                                              02/03/2020 19:17:34 PAGE 2   
+
+  55   1          {
+  56   2              if(T20msFlg)    //每过20ms处理事件标志位
+  57   2              {
+  58   3                  T20msFlg=0;
+  59   3                  //-----------------
+  60   3                  ClearDis(); //清缓存也可以理解为清屏
+  61   3                  
+  62   3                  RotateCube2(0,turn,0);      //立方体旋转计算并写入缓存区
+  63   3                  //RotatePic32x32(&SETICO[pic][0],0,turn,0);         //固定32*32旋转
+  64   3                  BG = 0;             //打开LCD片选
+  65   3                  
+  66   3                  RefreshScreen(); //将缓存区发送到LCD显示
+  67   3              }
+  68   2                      
+  69   2              if(T100msFlg)   //每过100ms处理事件标志位
+  70   2              {
+  71   3                  T100msFlg=0;
+  72   3                  //-----------------
+  73   3                  turn+=1;                            //每过100ms将旋转的角度加1
+  74   3                  if(turn>=360)turn=0;
+  75   3                  if(turn==280) //270
+  76   3                  {
+  77   4                      pic++;
+  78   4                      if(pic>7)pic=0;
+  79   4                  }
+  80   3                  
+  81   3              }
+  82   2                      
+  83   2              if(T500msFlg)   //每过500ms处理事件标志位
+  84   2              {
+  85   3                  T500msFlg=0;
+  86   3                  //-----------------
+  87   3                  flash=!flash;       //闪烁标志
+  88   3                  
+  89   3              }
+  90   2                      
+  91   2              if(T1sFlg)              //每过1s处理事件标志位
+  92   2              {
+  93   3                  T1sFlg=0;
+  94   3                  //-----------------
+  95   3                  
+  96   3              }
+  97   2          }
+  98   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    168    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =      5    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

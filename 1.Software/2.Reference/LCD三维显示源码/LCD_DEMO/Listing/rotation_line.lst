@@ -1,0 +1,97 @@
+C51 COMPILER V8.08   ROTATION_LINE                                                         11/17/2014 15:25:36 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE ROTATION_LINE
+OBJECT MODULE PLACED IN ..\Output\rotation_line.obj
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE ..\User\rotation_line.c BROWSE DEBUG OBJECTEXTEND PRINT(..\Li
+                    -sting\rotation_line.lst) OBJECT(..\Output\rotation_line.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: rotation_cube.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.可以旋转到指定角度的直线
+   5          *       2.基于2D图形变换算法
+   6          *******************************************************************************/
+   7          #include"public.h"
+   8          #include"transform_3D.h"
+   9          #include"projection.h"
+  10          #include"draw_line.h"
+  11          
+  12          
+  13          
+  14          #define SIZE 8
+  15          _3D code Cube[SIZE]=
+  16          {
+  17              {0,0,0},
+  18              {8,0,0},
+  19              {0,8,0},
+  20              {8,8,0},
+  21              
+  22              {0,0,8},
+  23              {8,0,8},
+  24              {0,8,8},
+  25              {8,8,8}
+  26          };
+  27          
+  28          
+  29          
+  30          
+  31          /***************************************
+  32          函数: RotateLine
+  33          功能: 以一端为圆心的旋转直线
+  34          说明: 1.可以作为时钟的指针
+  35                2.x,y为指针的固定端坐标
+  36                3.a为旋转角度(0~360)
+  37          ***************************************/
+  38          void RotateLine( void )
+  39          {
+  40   1          float xdata gmat[4][4];
+  41   1          uchar idata i;
+  42   1          _3D xdata temp;
+  43   1          _2D xdata Cube_Dis[SIZE];
+  44   1          //---------------------
+  45   1          Identity_3D(gmat);
+  46   1          Translate_3D(gmat,-4,-4,-4);
+  47   1          Scale_3D(gmat,3,3,3);
+  48   1          Rotate_3D(gmat,10,10,0);
+  49   1          Translate_3D(gmat,64,32,32);
+  50   1          //---------------------
+  51   1          for(i=0;i<SIZE;i++)
+  52   1          {
+  53   2              temp = VEC_MultMatrix(Cube[i],gmat);
+  54   2              Cube_Dis[i] = Project(temp);
+C51 COMPILER V8.08   ROTATION_LINE                                                         11/17/2014 15:25:36 PAGE 2   
+
+  55   2          }
+  56   1          //---------------------
+  57   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[1].x,Cube_Dis[1].y);
+  58   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[2].x,Cube_Dis[2].y);
+  59   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[1].x,Cube_Dis[1].y);
+  60   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[2].x,Cube_Dis[2].y);
+  61   1          //------------------------------------------
+  62   1          DrawLine(Cube_Dis[0+4].x,Cube_Dis[0+4].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+  63   1          DrawLine(Cube_Dis[0+4].x,Cube_Dis[0+4].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+  64   1          DrawLine(Cube_Dis[3+4].x,Cube_Dis[3+4].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+  65   1          DrawLine(Cube_Dis[3+4].x,Cube_Dis[3+4].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+  66   1          //------------------------------------------
+  67   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[0+4].x,Cube_Dis[0+4].y);
+  68   1          DrawLine(Cube_Dis[1].x,Cube_Dis[1].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+  69   1          DrawLine(Cube_Dis[2].x,Cube_Dis[2].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+  70   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[3+4].x,Cube_Dis[3+4].y);
+  71   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    644    ----
+   CONSTANT SIZE    =     96    ----
+   XDATA SIZE       =   ----     108
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----       1
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

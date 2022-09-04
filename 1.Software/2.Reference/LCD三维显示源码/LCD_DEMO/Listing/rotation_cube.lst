@@ -1,0 +1,167 @@
+C51 COMPILER V9.60.0.0   ROTATION_CUBE                                                     02/03/2020 19:17:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE ROTATION_CUBE
+OBJECT MODULE PLACED IN ..\Output\rotation_cube.obj
+COMPILER INVOKED BY: D:\Keil_MDK\Keil_v5\C51\BIN\C51.EXE ..\User\rotation_cube.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User
+                    -) DEBUG OBJECTEXTEND PRINT(..\Listing\rotation_cube.lst) OBJECT(..\Output\rotation_cube.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文档: rotation_cube.c
+   3          * 作者: Wu LianWei
+   4          * 描述: 1.可以旋转的立方体3D显示
+   5          *       2.基于3D图形变换算法和投影算法
+   6          *******************************************************************************/
+   7          #include"transform_3D.h"
+   8          #include"projection.h"
+   9          #include"draw_line.h"
+  10          
+  11          
+  12          
+  13          #define  SIZE  8
+  14          //------------------
+  15          _3D code Cube[SIZE]=
+  16          {
+  17              {0,0,0},
+  18              {8,0,0},
+  19              {0,8,0},
+  20              {8,8,0},
+  21              
+  22              {0,0,8},
+  23              {8,0,8},
+  24              {0,8,8},
+  25              {8,8,8}
+  26          };
+  27          _3D code Triangle[3]=
+  28          {
+  29              {4,2,0},
+  30              {2,6,0},
+  31              {6,6,0}
+  32          };
+  33          
+  34          
+  35          
+  36          /***************************************
+  37          函数: RotateCube
+  38          功能: 旋转的立方体
+  39          说明: 1.正射投影
+  40          ***************************************/
+  41          void RotateCube( float ax, float ay, float az )
+  42          {
+  43   1          float xdata gmat[4][4];
+  44   1          unsigned char idata i;
+  45   1          _3D xdata temp;
+  46   1          _2D xdata Cube_Dis[SIZE];
+  47   1          _2D xdata Triangle_Dis[3];
+  48   1          //---------------------
+  49   1          Identity_3D(gmat);
+  50   1          Translate_3D(gmat,-4,-4,-4);
+  51   1          Scale_3D(gmat,5,5,5);
+  52   1          Rotate_3D(gmat,ax,ay,az);
+  53   1          Translate_3D(gmat,64,32,32);
+  54   1          //---------------------
+C51 COMPILER V9.60.0.0   ROTATION_CUBE                                                     02/03/2020 19:17:35 PAGE 2   
+
+  55   1          for(i=0;i<SIZE;i++)
+  56   1          {
+  57   2              temp = VEC_MultMatrix(Cube[i],gmat);
+  58   2              Cube_Dis[i] = OrtProject(temp);
+  59   2          }
+  60   1          for(i=0;i<3;i++)
+  61   1          {
+  62   2              temp = VEC_MultMatrix(Triangle[i],gmat);
+  63   2              Triangle_Dis[i] = OrtProject(temp);
+  64   2          }
+  65   1          //---------------------
+  66   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[1].x,Cube_Dis[1].y);
+  67   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[2].x,Cube_Dis[2].y);
+  68   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[1].x,Cube_Dis[1].y);
+  69   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[2].x,Cube_Dis[2].y);
+  70   1          //------------------------------------------
+  71   1          DrawLine(Cube_Dis[0+4].x,Cube_Dis[0+4].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+  72   1          DrawLine(Cube_Dis[0+4].x,Cube_Dis[0+4].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+  73   1          DrawLine(Cube_Dis[3+4].x,Cube_Dis[3+4].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+  74   1          DrawLine(Cube_Dis[3+4].x,Cube_Dis[3+4].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+  75   1          //------------------------------------------
+  76   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[0+4].x,Cube_Dis[0+4].y);
+  77   1          DrawLine(Cube_Dis[1].x,Cube_Dis[1].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+  78   1          DrawLine(Cube_Dis[2].x,Cube_Dis[2].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+  79   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[3+4].x,Cube_Dis[3+4].y);
+  80   1          //---------------------
+  81   1          DrawLine(Triangle_Dis[0].x,Triangle_Dis[0].y,Triangle_Dis[1].x,Triangle_Dis[1].y);
+  82   1          DrawLine(Triangle_Dis[0].x,Triangle_Dis[0].y,Triangle_Dis[2].x,Triangle_Dis[2].y);
+  83   1          DrawLine(Triangle_Dis[1].x,Triangle_Dis[1].y,Triangle_Dis[2].x,Triangle_Dis[2].y);
+  84   1      }
+  85          
+  86          
+  87          
+  88          /***************************************
+  89          函数: RotateCube2
+  90          功能: 旋转的立方体
+  91          说明: 1.透视投影
+  92          ***************************************/
+  93          void RotateCube2( float ax, float ay, float az )
+  94          {
+  95   1          float xdata gmat[4][4];
+  96   1          unsigned char idata i;
+  97   1          _3D xdata temp;
+  98   1          _2D xdata Cube_Dis[SIZE];
+  99   1          //_2D xdata Triangle_Dis[3];
+ 100   1          //---------------------
+ 101   1          Identity_3D(gmat);
+ 102   1          Translate_3D(gmat,-4,-4,-4);
+ 103   1          Scale_3D(gmat,6,6,6);
+ 104   1          Rotate_3D(gmat,ax,ay,az);
+ 105   1          Translate_3D(gmat,0,0,32);
+ 106   1          //---------------------
+ 107   1          XOrigin = 64;
+ 108   1          YOrigin = 32;
+ 109   1          //---------------------
+ 110   1          for(i=0;i<SIZE;i++)
+ 111   1          {
+ 112   2              temp = VEC_MultMatrix(Cube[i],gmat);
+ 113   2              Cube_Dis[i] = PerProject(temp);
+ 114   2          }
+ 115   1          //for(i=0;i<3;i++)
+ 116   1          //{
+C51 COMPILER V9.60.0.0   ROTATION_CUBE                                                     02/03/2020 19:17:35 PAGE 3   
+
+ 117   1          //    temp = VEC_MultMatrix(Triangle[i],gmat);
+ 118   1          //    Triangle_Dis[i] = PerProject(temp);
+ 119   1          //}
+ 120   1          //---------------------
+ 121   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[1].x,Cube_Dis[1].y);
+ 122   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[2].x,Cube_Dis[2].y);
+ 123   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[1].x,Cube_Dis[1].y);
+ 124   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[2].x,Cube_Dis[2].y);
+ 125   1          //------------------------------------------
+ 126   1          DrawLine(Cube_Dis[0+4].x,Cube_Dis[0+4].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+ 127   1          DrawLine(Cube_Dis[0+4].x,Cube_Dis[0+4].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+ 128   1          DrawLine(Cube_Dis[3+4].x,Cube_Dis[3+4].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+ 129   1          DrawLine(Cube_Dis[3+4].x,Cube_Dis[3+4].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+ 130   1          //------------------------------------------
+ 131   1          DrawLine(Cube_Dis[0].x,Cube_Dis[0].y,Cube_Dis[0+4].x,Cube_Dis[0+4].y);
+ 132   1          DrawLine(Cube_Dis[1].x,Cube_Dis[1].y,Cube_Dis[1+4].x,Cube_Dis[1+4].y);
+ 133   1          DrawLine(Cube_Dis[2].x,Cube_Dis[2].y,Cube_Dis[2+4].x,Cube_Dis[2+4].y);
+ 134   1          DrawLine(Cube_Dis[3].x,Cube_Dis[3].y,Cube_Dis[3+4].x,Cube_Dis[3+4].y);
+ 135   1          //---------------------
+ 136   1          //DrawLine(Triangle_Dis[0].x,Triangle_Dis[0].y,Triangle_Dis[1].x,Triangle_Dis[1].y);
+ 137   1          //DrawLine(Triangle_Dis[0].x,Triangle_Dis[0].y,Triangle_Dis[2].x,Triangle_Dis[2].y);
+ 138   1          //DrawLine(Triangle_Dis[1].x,Triangle_Dis[1].y,Triangle_Dis[2].x,Triangle_Dis[2].y);
+ 139   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1562    ----
+   CONSTANT SIZE    =    132    ----
+   XDATA SIZE       =   ----     228
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      24
+   IDATA SIZE       =   ----       2
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
